@@ -1,0 +1,45 @@
+syntax="proto2";
+package login; // 包名
+
+// 登录请求
+message LoginReq
+{
+    optional int32 appid = 1; // 应用id
+	optional int32 device_type = 2; //设备类型
+	optional int32 channel_id = 3; //渠道id
+    optional string apk_ver = 4; //apk版本
+    optional int32 hall_ver = 5; //大厅版本
+    optional int32 login_type = 6; //登录类型
+    optional string account  = 7; // 账号, 游客：guid，手机：手机号码
+    optional string password  = 8; //密码，游客：空，手机：密码()
+    optional string param  = 9; // 第三方平台的登陆参数，json格式;(手机、邮箱的验证码){token(上一次登陆返回的token)，access_token(第三方平台返回的token，用来去平台校验获取用户信息)}
+    optional string lang  = 10; // 语音环境
+    optional string oldAccount = 11; // 老账号
+}
+
+
+// 登录回复数据
+message LoginResp {
+    optional int32 code = 1; //登陆状态; 0:成功；其它：失败
+    optional string msg = 2; // 提示信息
+    optional AccountInfo data = 3; //登录类型
+    optional UserInfo user = 4; //登录类型
+    optional int32 isNew = 5; //是否是新用户，0不是，1是
+    optional string lock = 6;// 封号信息
+}
+
+message AccountInfo {
+    optional int64 uid = 1; //用户id
+    optional string token = 2; // 登陆token，下次免密
+    optional string ssid = 3; // 安全校验
+    optional int32 login_type = 4; //登录类型
+	optional int32 auth_status = 5; //认证状态 1：已认证  0：未认证
+}
+
+message UserInfo {
+    optional string nick = 1; //昵称
+    optional string icon = 2; //头像
+    optional int32 sex = 3; //性别
+    optional int64 money = 4; //金币
+    optional int64 coin = 5; //钻石
+}

@@ -1,0 +1,16 @@
+syntax="proto2";
+
+package Pbheart; // 包名
+
+
+// 心跳请求 方法名：heartbeat.common
+message HeartReq
+{
+    optional string heart = 1; // 心跳消息
+}
+
+// 心跳响应
+message HeartResp {
+    optional int32 code = 1; //0:成功；其它：失败
+    optional string token = 2; //有更新 就返回
+}

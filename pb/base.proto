@@ -1,0 +1,192 @@
+
+syntax="proto2";
+package gameser_frame;
+
+//1.方法名： Login(LoginReq,LoginResp) 完整方法名为"gameser.Login"
+//说明： 用户进入/重连GameSer(但并不做用户账号的鉴权!!!)
+
+enum LOGIN_ERROR {
+    TABLE_NOTFOUND = 1; //桌子找不到
+    MONEY_LIMITED = 2;  //入场金钱限制
+    USER_ISPLAYING_OTHER = 3;   //用户在其它服务在玩
+    SVR_NOTAVAIL = 4;   //当前服务不可用(正在退休中...)
+    USERINFO_ERR = 5;   //用户信息获取失败
+    USER_DISABLE = 6;   //用户被禁用
+};
+
+
+message LoginReq
+{
+    optional int64 uid = 1; //用户id
+    optional int64 tid = 2; //桌子id   暂时写死 8060928.
+    optional string info = 3; //信息
+    optional string client_ip = 4; //客户端ip
+    optional int64 svrId = 5; //svrId
+    optional int64 svrType = 6; //svrType
+}
+
+message LoginResp
+{
+    optional int32 err_code = 1; //0=成功,其它为失败错误码
+    optional int32 gameid = 2; //游戏id
+    optional int32 level = 3; //游戏场次
+    optional int32 levelType = 4; //场次类型 多玩法
+    optional string playType = 5; //是否是比赛玩法
+}
+
+//1.完整方法名为：alloc.Alloc      与其他的不同，这个完整的方法名前面是alloc
+//说明：客户端配桌请求
+message AllocReq
+{
+    optional int64 uid = 1; //用户id
+    optional string info = 2; //信息
+    optional string client_ip = 3; //客户端ip
+    optional int32 gameid = 4; //游戏id
+    optional int32 level = 5; //游戏场次
+    optional int64 followuid = 6; //跟随玩家uid
+    optional int64 lastTableId = 7; //上一次登录的桌子ID
+    optional int32 levelType = 8; //场次类型 多玩法
+    optional string playType = 9; //是否是比赛玩法
+    optional string extendInfo = 10; //拓展字段
+}
+
+message AllocResp
+{
+    optional int32 err_code = 1; //0=成功,其它为失败错误码
+    optional int64 svrId = 2; //svrId
+    optional int64 svrType = 3; //svrType
+    optional int64 tableid = 4; //tableid
+    optional int32 gameid = 5; //游戏id
+    optional int32 level = 6; //游戏场次
+    optional int32 levelType = 7; //场次类型 多玩法
+    optional string playType = 8; //是否是比赛玩法
+    optional string extendInfo = 9; //是否是比赛玩法
+}
+
+//2.方法名： gameser.Logout
+//说明： 用户退出GameSer
+
+message LogoutReq
+{
+    optional int64 uid = 1; //用户id
+    optional int32 reason = 2; //1=用户主动退出，2=连接断开掉线，3=服务端原因
+}
+
+message LogoutResp
+{
+    optional int32 err_code = 1; //0=成功,其它为失败错误码
+}
+
+
+
+//服务名：online
+//方法名：GetGameStatusInfo
+enum retcode
+{
+    RET_SUCCESS=0;//成功
+    RET_FAILED=1;//失败
+}
+
+
+message GetGameStateInfoRsp
+{
+    optional retcode ret    = 1;
+    optional int32 gameid = 2;  // 游戏id
+    optional int64 svid = 3; // server id
+    optional int64 tid = 4; // 桌子id
+    optional int64 svrtype = 5; //server type
+}
+
+message GetGameStateInfoReq
+{
+    optional int64 uid = 1;
+}
+
+//方法名： gameser.Face
+//说明： 玩家发表情
+message FaceReq
+{
+    optional int64 uid = 1; //用户id
+    optional int32 type = 2; //普通/vip/...
+    optional int32 index = 3; //表情索引
+}
+message FaceResp
+{
+    optional int32 err_code = 1; //0=成功,其它为失败错误码
+}
+
+//方法名： gameser.UserFace
+//s2c，玩家表情广播
+message UserFaceResp
+{
+    optional int64 uid = 1; //用户id
+    optional int32 type = 2; //普通/vip/...
+    optional int32 index = 3; //表情索引
+}
+
+//方法名： gameser.FormatChat
+//说明： 玩家发聊天
+message FormatChatReq
+{
+    optional int64 uid = 1; //用户id
+    optional string chatmsg = 2; //普通聊天
+}
+message FormatChatResp
+{
+    optional int32 err_code = 1; //0=成功,其它为失败错误码
+}
+
+//方法名： gameser.UserFormatChat
+//s2c，玩家聊天
+message UserFormatChatResp
+{
+    optional int64 uid = 1; //用户id
+    optional string chatmsg = 2; //普通聊天
+}
+
+//3.子游戏通用消息上行方法名： gameser.OnGameMsg(GameMsgReq, GameMsgResp)
+//子游戏通用消息下行方法名： Access.SendToClient(GameMsgReq, GameMsgResp)
+message GameMsgReq
+{
+    optional int64 uid = 1; //用户id,一般由接入层填写
+    optional string method = 2; //调用的后端子游戏的方法名(或前端方法名),eg. "gameser.Chipin"  LOGIN_TOUBAO
+    optional string pb_format = 3;  //pb的message name,eg. "ChipinReq"
+    optional bytes client_pbmsg = 4; //pb包的序列化   xxxx
+}
+
+message GameMsgResp
+{
+    optional int64 uid = 1; //用户id,一般由接入层填写
+    optional string method = 2; //调用的后端子游戏的方法名(或前端方法名),eg. "gameser.Chipin"
+    optional string pb_format = 3;  //pb的message name,eg. "ChipinReq"
+    optional bytes client_pbmsg = 4; //pb包的序列化
+}
+
+//拉取敏感词
+//rpc sensitiveword.Words
+message WordsReq
+{
+    optional  int64   ver     =   1; //拉取的版本，如果版本没有变化则拉取的不会返回数据
+}
+
+message WordsResp
+{
+    optional    int32   code    =   1;
+    optional    int64   ver     =   2; //当前的版本，
+    repeated    string  words   =   3;
+}
+
+
+//请求过滤字符串中的敏感字符
+//rpc sensitiveword.Filter
+message FilterReq
+{
+    optional    string  str =   1; //需要过滤的字符，不要太长，100个字符内
+}
+
+message FilterResp
+{
+    optional    int32   code    =   1; //是否成功
+    optional    int32   count   =   2; //包含多少个敏感字符
+    optional    string  str     =   3; //过滤之后的字符
+}

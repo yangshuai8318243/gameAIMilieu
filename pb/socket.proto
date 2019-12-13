@@ -1,0 +1,22 @@
+// socket消息结构
+syntax = "proto2";
+package socket_rpc;
+
+// socket请求数据结构,rpc=socket_rpc.req
+message RpcReq
+{
+    required string rpc = 1;  //微服务名称
+    required bytes body = 2;  //业务请求参数
+    required string token = 3;  //链路校验参数
+    required string ext = 4;  //扩展字段
+}
+
+// socket返回的数据结构
+message RpcRsp
+{
+    required string rpc = 1;  //微服务名称
+    required bytes body = 2;  //业务请求参数
+    required string token = 3;  //链路校验参数
+    required string ext = 4;  //扩展字段
+    required int32 code = 5;  //ac错误码 0：完成；1：超时；2：发送错误；3：发生网络错误；4：net层没有发现服务
+}
